@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "wapp"
+version = "1.0.0"
+description = "wrap as python package, allows to install python scripts as package"
+authors = ["Tobias Pawelke <mail@tobiaspawelke.de>"]
+packages = [{ include = "wapp" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+giturlparse = "^0.12.0"
+tomlkit = "^0.13.2"
+gitpython = "^3.1.43"
+coloredlogs = "^15.0.1"
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+wapp = "wapp:main"
