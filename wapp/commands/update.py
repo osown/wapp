@@ -7,7 +7,7 @@ import git.exc
 from wapp.commands import wrap_project
 from wapp.files.pyproject import Pyproject
 from wapp.files.requirements import Requirements
-from wapp.utils import get_git_version_string, update_via_pipx
+from wapp.utils import build_wheel, get_git_version_string, update_via_pipx
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ def update(args):
 
     logger.debug("Old package version %s", version)
     logger.info("Updating Repo")
-    repo_dir = dest_dir.joinpath(pyproject.name)
+    repo_dir = dest_dir.joinpath("src", f"wrapped_{pyproject.name}", pyproject.name)
     try:
         repo = git.Repo(repo_dir)
         version = get_git_version_string(repo)
@@ -54,15 +54,16 @@ def update(args):
         logger.info("Updated package from %s to %s", pyproject.version, version)
 
         wrap_project(dest_dir, repo_dir, requires, package_name, version, scripts)
+        wheel_path = build_wheel(dest_dir)
 
         logger.info("Successfully updated wrapped package %s", package_name)
 
         if install:
-            logger.info('Running "pipx upgrade %s":', package_name)
-            retval, output = update_via_pipx(package_name)
+            logger.info('Running "pipx upgrade %s":', wheel_path)
+            retval, output = update_via_pipx(wheel_path.absolute())
             [logger.info("  %s", line) for line in output.splitlines()]
             logger.info("pipx exited with: %d", retval)
         else:
-            logger.info('Run "pipx upgrade %s" to update package', package_name)
+            logger.info('Run "pipx upgrade %s" to update package', wheel_path)
     else:
         logger.info("Already latest revision %s", version)

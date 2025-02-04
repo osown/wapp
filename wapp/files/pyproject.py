@@ -25,10 +25,11 @@ class Pyproject(Config):
         },
         "tool": {
             "setuptools": {
+                "include-package-data": True,
+                "package-data": {"*": ["*", "*/**"]},
                 "dynamic": {"dependencies": {"file": ["requirements.txt"]}},
                 "py-modules": ["__NAME__"],
-                "packages": {"find": {"where": ["."]}},
-                "package-data": {"__NAME__": ["*"]},
+                "packages": {"find": {"where": ["src"]}},
             }
         },
     }
@@ -78,9 +79,7 @@ class Pyproject(Config):
             version = "0.0.0"
 
         self.conf["project"]["name"] = self.name
-        self.conf["tool"]["setuptools"]["package-data"] = {self.name: ["*"]}
         self.conf["project"]["version"] = self.version
-
         self.conf["tool"]["setuptools"]["py-modules"] = []
         for link_name, script_target in self.scripts.items():
             script_target = script_target.removesuffix(".py")
@@ -88,7 +87,9 @@ class Pyproject(Config):
             self.conf["tool"]["setuptools"]["py-modules"].append(
                 f"wrapped_{script_target}"
             )
-            self.conf["project"]["scripts"][link_name] = f"wrapped_{script_target}:main"
+            self.conf["project"]["scripts"][
+                link_name
+            ] = f"wrapped_{self.name}.wrapped_{script_target}:main"
 
         with open(str(filename), "w", encoding="utf-8") as f:
             dump_toml(self.conf, f)

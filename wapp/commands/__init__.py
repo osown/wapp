@@ -1,4 +1,5 @@
 import logging
+import re
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -24,15 +25,20 @@ def wrap_project(
 
     logger.info("Exposed scripts:")
     for script_target, link_name in scripts.items():
-        logger.info("  %s -> %s", link_name, script_target)
+        wrapped_script_target = re.sub("[^0-9a-zA-Z.]+", "_", script_target)
+
+        logger.info("  %s -> %s", link_name, wrapped_script_target)
 
         # Create wrappers
         wrapper = Wrapper(package_name, script_target)
-        wrapper_path = dest_dir.joinpath(f"wrapped_{script_target}")
+        wrapper_path = dest_dir.joinpath(
+            "src", f"wrapped_{package_name}", f"wrapped_{wrapped_script_target}"
+        )
+        wrapper_path.parent.mkdir(parents=True, exist_ok=True)
         wrapper.write(wrapper_path)
 
         # Create pyproject.toml
-        pyproject.add_script(script_target, link_name)
+        pyproject.add_script(wrapped_script_target, link_name)
 
     pyproject.write(dest_dir.joinpath("pyproject.toml"))
 
