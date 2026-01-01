@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wapp"
-version = "1.0.0"
+version = "1.0.1"
 description = "wrap as python package, allows to install python scripts as package"
 authors = ["Tobias Pawelke <mail@tobiaspawelke.de>"]
 packages = [{ include = "wapp" }]
