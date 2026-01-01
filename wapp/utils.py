@@ -107,7 +107,19 @@ def build_wheel(path: Path) -> Path:
         Path: The path to the built wheel file.
     """
     builder = ProjectBuilder(path)
-    out_dir = path.joinpath("dist")
+    out_dir = path / "dist"
     builder.build("wheel", output_directory=out_dir)
     wheel = list(out_dir.iterdir())[0]
     return wheel
+
+
+def is_python_file(path: Path) -> bool:
+    if path.is_file():
+        if path.suffix == ".py":
+            return True
+        else:
+            with open(str(path.resolve()), "r", errors='ignore') as file:
+                if "#!/usr/bin/env python" in file.readline():
+                    return True
+    return False
+        

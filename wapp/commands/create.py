@@ -12,6 +12,7 @@ from wapp.utils import (
     install_via_pipx,
     normalize_package_name,
     validate_package_name,
+    is_python_file
 )
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,6 @@ def create(args):
         scripts[script_target] = link_name
 
     # Repo URL validation
-
     parsed_repo_url = parse_giturl(repo_url, check_domain=False)
     if not parsed_repo_url.valid:
         raise RuntimeError(f'Git repo "{repo_url}" invalid, specify another repo')
@@ -55,7 +55,7 @@ def create(args):
 
     # Destination validation
     dest_dir = (
-        args.dest_dir if args.dest_dir else Path().cwd().joinpath(package_name)
+        args.dest_dir if args.dest_dir else Path().cwd() / package_name
     )  # type: Path
 
     if not dest_dir.exists():
@@ -67,7 +67,7 @@ def create(args):
             f'Destination "{dest_dir}" not empty, change directory or #specify another destination'
         )
 
-    repo_dir = dest_dir.joinpath("src", f"wrapped_{package_name}", package_name)
+    repo_dir = dest_dir / "src" / f"wrapped_{package_name}" / package_name
     repo_dir.mkdir(exist_ok=True, parents=True)
 
     # Clone repo
@@ -91,7 +91,7 @@ def create(args):
     path_list = [
         path.name
         for path in repo_dir.iterdir()
-        if path.is_file() and path.suffix == ".py"
+        if is_python_file(path)
     ]
     if not scripts:
         scripts.update({path: path for path in path_list})
@@ -99,7 +99,7 @@ def create(args):
         path_list_complete = [
             str(path.relative_to(repo_dir))
             for path in repo_dir.glob("**/*")
-            if path.is_file() and path.suffix == ".py"
+            if is_python_file(path)
         ]
         for script_target in scripts.keys():
             if script_target not in path_list_complete:

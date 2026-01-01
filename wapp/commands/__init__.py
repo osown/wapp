@@ -31,20 +31,19 @@ def wrap_project(
 
         # Create wrappers
         wrapper = Wrapper(package_name, script_target)
-        wrapper_path = dest_dir.joinpath(
-            "src", f"wrapped_{package_name}", f"wrapped_{wrapped_script_target}"
-        )
+        wrapper_path = dest_dir / "src" / f"wrapped_{package_name}" / f"wrapped_{wrapped_script_target}"
+        wrapper_path = wrapper_path.with_suffix(".py")
         wrapper_path.parent.mkdir(parents=True, exist_ok=True)
         wrapper.write(wrapper_path)
 
         # Create pyproject.toml
         pyproject.add_script(wrapped_script_target, link_name)
 
-    pyproject.write(dest_dir.joinpath("pyproject.toml"))
+    pyproject.write(dest_dir / "pyproject.toml")
 
     # Create requirements.txt
     requirements = Requirements()
-    existing_requirements_path = repo_dir.joinpath("requirements.txt")
+    existing_requirements_path = repo_dir / "requirements.txt"
     if existing_requirements_path.is_file():
         requirements = requirements.from_config(existing_requirements_path)
     for dependency in requires:
@@ -58,7 +57,7 @@ def wrap_project(
     [
         logger.debug("    %s", item) for item in requirements.new_conf.values()
     ]  # pylint:disable=W0106
-    merged_conf = requirements.write(dest_dir.joinpath("requirements.txt"))
+    merged_conf = requirements.write(dest_dir / "requirements.txt")
     logger.debug("  Merged requirements:")
     [
         logger.debug("    %s", item) for item in merged_conf.values()
@@ -69,7 +68,7 @@ def wrap_project(
         custom_requirements = Requirements()
         for dependency in requires:
             custom_requirements.add_dependency(dependency)
-        custom_requirements.write(dest_dir.joinpath("custom_requirements.txt"))
+        custom_requirements.write(dest_dir / "custom_requirements.txt")
 
-    wapp_identifier_path = dest_dir.joinpath(".wapp")
+    wapp_identifier_path = dest_dir / ".wapp"
     wapp_identifier_path.touch(exist_ok=True)

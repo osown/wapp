@@ -17,16 +17,16 @@ def update(args):
     install = args.pipx  # type: bool
 
     requires = []
-    custom_requirements_path = dest_dir.joinpath("custom_requirements.txt")
+    custom_requirements_path = dest_dir / "custom_requirements.txt"
     if custom_requirements_path.exists():
         custom_requirements = Requirements.from_config(custom_requirements_path)
         requires = custom_requirements.conf.values()
 
-    wapp_identifier_path = dest_dir.joinpath(".wapp")
+    wapp_identifier_path = dest_dir / ".wapp"
     if not wapp_identifier_path.exists():
         raise RuntimeError("Seems to be not a wapp-wrapped project, are you sure?")
 
-    pyproject_path = dest_dir.joinpath("pyproject.toml")
+    pyproject_path = dest_dir / "pyproject.toml"
     if not pyproject_path.exists():
         raise RuntimeError(
             "Seems to be not a wapp-wrapped project, missing pyproject.toml"
@@ -39,7 +39,7 @@ def update(args):
 
     logger.debug("Old package version %s", version)
     logger.info("Updating Repo")
-    repo_dir = dest_dir.joinpath("src", f"wrapped_{pyproject.name}", pyproject.name)
+    repo_dir = dest_dir / "src" / f"wrapped_{pyproject.name}" / pyproject.name
     try:
         repo = git.Repo(repo_dir)
         version = get_git_version_string(repo)
